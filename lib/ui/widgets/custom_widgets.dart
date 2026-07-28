@@ -61,6 +61,7 @@ import 'package:namida/ui/pages/about_page.dart';
 import 'package:namida/ui/pages/settings_page.dart';
 import 'package:namida/ui/widgets/animated_widgets.dart';
 import 'package:namida/ui/widgets/custom_tooltip.dart';
+import 'package:namida/ui/widgets/glass/namida_glass.dart';
 import 'package:namida/ui/widgets/library/track_tile.dart';
 import 'package:namida/ui/widgets/popup_wrapper.dart';
 import 'package:namida/ui/widgets/settings/extra_settings.dart';
@@ -69,6 +70,7 @@ import 'package:namida/youtube/controller/youtube_info_controller.dart';
 
 import 'custom_reorderable_list.dart';
 
+export 'glass/namida_glass.dart';
 export 'popup_wrapper.dart';
 
 part 'smooth_scroll.dart';
@@ -640,16 +642,21 @@ class CustomBlurryDialog extends StatelessWidget {
     return Center(
       child: SmoothSingleChildScrollView(
         child: Dialog(
-          backgroundColor: ctxth.dialogTheme.backgroundColor,
+          // -- the surface itself is painted by [NamidaGlass] below, the [Dialog]
+          // -- only keeps its shape (rounded rect + lit edge) and clipping.
+          backgroundColor: Colors.transparent,
           surfaceTintColor: Colors.transparent,
           insetPadding: EdgeInsets.symmetric(horizontal: horizontalMargin, vertical: vInsets),
           clipBehavior: Clip.antiAlias,
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: kDialogMaxWidth),
-            child: TapDetector(
-              onTap: () {},
-              child: Container(
-                color: Colors.transparent,
+            child: NamidaGlass(
+              level: NamidaGlassLevel.overlay,
+              color: ctxth.dialogTheme.backgroundColor,
+              borderRadius: BorderRadius.circular(24.0.multipliedRadius),
+              rim: false, // -- already drawn by the dialog shape
+              child: TapDetector(
+                onTap: () {},
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
@@ -689,7 +696,11 @@ class CustomBlurryDialog extends StatelessWidget {
                               ),
                             )
                           : Container(
-                              color: Color.alphaBlend(ctxth.colorScheme.primary.withOpacityExt(0.02), ctxth.cardTheme.color!),
+                              // -- translucent so the glass surface reads through the header strip
+                              color: Color.alphaBlend(
+                                ctxth.colorScheme.primary.withOpacityExt(0.02),
+                                ctxth.cardTheme.color!,
+                              ).withOpacityExt(0.35),
                               padding: const EdgeInsets.all(16),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,

@@ -5,6 +5,7 @@ import 'package:namida/controller/settings_controller.dart';
 import 'package:namida/core/constants.dart';
 import 'package:namida/core/extensions.dart';
 import 'package:namida/core/utils.dart';
+import 'package:namida/ui/widgets/glass/namida_glass.dart';
 
 class AppThemes {
   static AppThemes get inst => _instance;
@@ -57,6 +58,15 @@ class AppThemes {
       brightness: brightness,
       useMaterial3: true,
       colorScheme: colorScheme,
+      // -- resolved liquid-glass palette, derived from the very same inputs as
+      // -- the rest of the theme (accent color, brightness, AMOLED).
+      extensions: [
+        NamidaGlassTheme.fromColors(
+          accent: color,
+          light: light,
+          pitchBlack: shouldUseAMOLED,
+        ),
+      ],
       fontFamily: fontFamily,
       fontFamilyFallback: fontFamilyFallback,
       scaffoldBackgroundColor: pitchBlack ?? (light ? Color.alphaBlend(color.withAlpha(60), Colors.white) : null),
@@ -75,19 +85,22 @@ class AppThemes {
         ),
       ),
       secondaryHeaderColor: light ? const Color.fromARGB(200, 240, 240, 240) : const Color.fromARGB(222, 10, 10, 10),
-      navigationBarTheme: pitchBlack == null
-          ? null
-          : NavigationBarThemeData(
-              backgroundColor: pitchBlack,
-              surfaceTintColor: pitchBlack,
-              indicatorColor: Color.alphaBlend(color.withAlpha(120), pitchBlack),
-            ),
-      navigationRailTheme: pitchBlack == null
-          ? null
-          : NavigationRailThemeData(
-              backgroundColor: pitchBlack,
-              indicatorColor: Color.alphaBlend(color.withAlpha(120), pitchBlack),
-            ),
+      // -- navigation surfaces are painted by [NamidaGlass] now, so the material
+      // -- underneath must stay fully transparent to avoid double tinting.
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        indicatorColor: pitchBlack == null
+            ? color.withAlpha(getColorAlpha(110))
+            : Color.alphaBlend(color.withAlpha(110), pitchBlack).withOpacityExt(0.55),
+      ),
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: Colors.transparent,
+        indicatorColor: pitchBlack == null
+            ? color.withAlpha(getColorAlpha(110))
+            : Color.alphaBlend(color.withAlpha(110), pitchBlack).withOpacityExt(0.55),
+      ),
       iconTheme: IconThemeData(
         color: light ? const Color.fromARGB(200, 40, 40, 40) : const Color.fromARGB(200, 233, 233, 233),
       ),
@@ -147,7 +160,13 @@ class AppThemes {
       focusColor: light ? const Color.fromARGB(200, 190, 190, 190) : const Color.fromARGB(150, 80, 80, 80),
       dialogTheme: DialogThemeData(
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.0.multipliedRadius)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24.0.multipliedRadius),
+          side: BorderSide(
+            color: light ? Colors.white.withAlpha(150) : Colors.white.withAlpha(30),
+            width: 0.8,
+          ),
+        ),
         backgroundColor: lighterDialog
             ? light
                   ? Color.alphaBlend(getMainColorWithAlpha(60), Colors.white)
@@ -216,6 +235,11 @@ class AppThemes {
         elevation: 12.0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0.multipliedRadius),
+          // -- lit edge, matching every other glass surface
+          side: BorderSide(
+            color: light ? Colors.white.withAlpha(140) : Colors.white.withAlpha(28),
+            width: 0.8,
+          ),
         ),
         color: light ? Color.alphaBlend(cardColor.withAlpha(180), Colors.white) : Color.alphaBlend(cardColor.withAlpha(180), Colors.black),
       ),

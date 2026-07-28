@@ -848,10 +848,14 @@ class _CustomAppBar extends StatelessWidget {
     final showNavigationAtSide = Dimensions.inst.showNavigationAtSide;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: overlayStyle,
-      child: Material(
+      child: NamidaGlass(
+        // -- top chrome: frosted, tinted towards the theme's app bar color.
+        color: backgroundColor,
+        rim: false,
+        child: Material(
         shadowColor: Colors.transparent,
         type: MaterialType.canvas,
-        color: backgroundColor,
+        color: Colors.transparent,
         surfaceTintColor: surfaceTintColor,
         child: SafeArea(
           left: !showNavigationAtSide,
@@ -879,6 +883,7 @@ class _CustomAppBar extends StatelessWidget {
                           );
                   },
                 ),
+        ),
         ),
       ),
     );
